@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>기홍오빠 ♡ 미션 성공하면 폭죽!</title>
+
+  <style>
+    :root{
+      --bg1:#0b1026;
+      --bg2:#111a3f;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.12);
+      --text:#f4f6ff;
+      --muted: rgba(244,246,255,.75);
+      --accent:#ffd27a;
+      --good:#7dffb2;
+      --bad:#ff7d7d;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 24px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, #25306e 0%, transparent 50%),
+                  radial-gradient(900px 700px at 80% 20%, #3b2a6e 0%, transparent 55%),
+                  linear-gradient(180deg, var(--bg2), var(--bg1));
+      overflow-x:hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* floating dots */
+    .bg-dots{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.85;
+      filter: blur(.2px);
+    }
+    .dot{
+      position:absolute;
+      width:8px;height:8px;border-radius:50%;
+      background: rgba(255,255,255,.22);
+      animation: float 10s linear infinite;
+    }
+    @keyframes float{
+      from{ transform: translateY(20px); opacity:.2 }
+      30%{ opacity:.95 }
+      to{ transform: translateY(-120vh); opacity:.2 }
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 28px 16px 38px;
+    }
+    .card{
+      width:min(520px, 100%);
+      background: linear-gradient(180deg, var(--card2), var(--card));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 22px 18px 18px;
+      position:relative;
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      font-weight:700;
+      letter-spacing:.2px;
+      margin-bottom: 14px;
+    }
+    h1{
+      margin: 6px 0 10px;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing:-.6px;
+      text-align:center;
+    }
+    .sub{
+      text-align:center;
+      color:var(--muted);
+      line-height:1.55;
+      margin: 0 0 18px;
+      font-size: 15px;
+    }
+
+    .panel{
+      background: rgba(0,0,0,.16);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .row{display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap}
+    input{
+      width:min(360px, 100%);
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.24);
+      color: var(--text);
+      outline:none;
+      font-size: 16px;
+    }
+    input::placeholder{color: rgba(244,246,255,.55)}
+    button{
+      appearance:none;
+      border:none;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 16px;
+      cursor:pointer;
+      color: #1b1b1b;
+      background: linear-gradient(180deg, #ffe3a6, #ffc85c);
+      box-shadow: 0 12px 30px rgba(255,210,122,.18);
+      transition: transform .08s ease, filter .08s ease;
+    }
+    button:active{transform: translateY(1px); filter: brightness(.95)}
+    .ghost{
+      color: var(--text);
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:none;
+      font-weight:700;
+    }
+
+    .msg{
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+      text-align:center;
+      min-height: 22px;
+    }
+    .msg.good{color: var(--good)}
+    .msg.bad{color: var(--bad)}
+
+    .progress{
+      display:flex;
+      gap: 8px;
+      justify-content:center;
+      margin: 14px 0 6px;
+    }
+    .pip{
+      width: 12px; height:12px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.10);
+    }
+    .pip.on{
+      background: linear-gradient(180deg, #ffe3a6, #ffc85c);
+      border-color: rgba(255,210,122,.55);
+    }
+
+    .qtitle{
+      font-size: 18px;
+      font-weight: 900;
+      text-align:center;
+      margin: 6px 0 6px;
+      letter-spacing:-.2px;
+    }
+    .qtext{
+      text-align:center;
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 12px;
+      font-size: 15px;
+    }
+    .hint{
+      text-align:center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: rgba(255,255,255,.78);
+    }
+    .hint b{color: var(--accent)}
+    .footer{
+      margin-top: 14px;
+      text-align:center;
+      color: rgba(244,246,255,.55);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* stage visibility */
+    .hidden{display:none !important;}
+
+    /* fireworks canvas */
+    canvas#fx{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index: 99;
+    }
+
+    /* success shimmer */
+    .shine{
+      position:absolute; inset:-60px -60px auto auto;
+      width: 220px; height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,210,122,.35), transparent 60%);
+      transform: rotate(15deg);
+      filter: blur(1px);
+      opacity:.7;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="fx"></canvas>
+
+  <!-- background dots -->
+  <div class="bg-dots" id="dots"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="shine"></div>
+
+      <div class="badge">🔒 비밀 미션 페이지 • 기홍오빠 전용 😎✨</div>
+
+      <!-- LOCK STAGE -->
+      <section id="stage-lock">
+        <h1>비번 입력하면<br/>미션이 시작돼요 🔐</h1>
+        <p class="sub">
+          기홍오빠만 들어올 수 있게 잠금 걸어놨어요 ㅎㅎ<br/>
+          (힌트: “오빠”가 아는 우리만의 키워드 😉)
+        </p>
+
+        <div class="panel">
+          <div class="row">
+            <input id="pw" type="password" placeholder="비밀번호를 입력해줘 (예: gh1234)" autocomplete="off" />
+            <button id="btn-unlock">입장!</button>
+          </div>
+          <div class="msg" id="pw-msg"></div>
+          <div class="row" style="margin-top:10px;">
+            <button class="ghost" id="btn-reset">초기화(테스트용)</button>
+          </div>
+        </div>
+
+        <div class="footer">
+          From. 주인님 💛<br/>
+          ※ 아이폰은 자동 음악 재생이 막혀서, 버튼 누르면 연출이 시작돼요!
+        </div>
+      </section>
+
+      <!-- QUIZ STAGE -->
+      <section id="stage-quiz" class="hidden">
+        <h1>기홍오빠 ♡<br/>미션 3단계 도전!</h1>
+        <p class="sub">
+          문제 다 맞히면 마지막에 폭죽 터져요 🎆<br/>
+          틀려도 괜찮아~ 힌트 줄게 😏
+        </p>
+
+        <div class="progress" id="pips"></div>
+
+        <div class="panel">
+          <div class="qtitle" id="qtitle">미션 1</div>
+          <div class="qtext" id="qtext"></div>
+
+          <div class="row" style="margin-top:12px;">
+            <input id="answer" type="text" placeholder="정답 입력" autocomplete="off" />
+            <button id="btn-submit">정답!</button>
+          </div>
+
+          <div class="msg" id="q-msg"></div>
+          <div class="hint" id="hint"></div>
+
+          <div class="row" style="margin-top:12px;">
+            <button class="ghost" id="btn-skip-hint">힌트 보기 👀</button>
+            <button class="ghost" id="btn-back-lock">잠금으로</button>
+          </div>
+        </div>
+
+        <div class="footer">
+          화면 아무 데나 톡! 하면 반짝 ✨ (작은 이펙트)<br/>
+          From. 주인님 💛
+        </div>
+      </section>
+
+      <!-- SUCCESS STAGE -->
+      <section id="stage-success" class="hidden">
+        <h1>🎉 미션 성공! 🎉<br/>기홍오빠 생일 축하해요!</h1>
+        <p class="sub">
+          오늘은 오빠가 세상에서 제일 빛나는 날 🌟<br/>
+          좋은 일만 가득하고, 올해는 “대박 시즌” 가자아아 💥
+        </p>
+
+        <div class="panel">
+          <div class="row" style="gap:12px;">
+            <button id="btn-fireworks">폭죽 더 받아랏 🎆</button>
+            <button class="ghost" id="btn-share">카톡으로 공유하기 📲</button>
+          </div>
+          <div class="msg good" id="s-msg">From. 주인님 💛</div>
+        </div>
+
+        <div class="footer">
+          ※ 공유 버튼이 안 뜨면, 주소창 링크를 복사해서 카톡에 붙여넣기 하면 돼요!
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * 설정(여기만 바꾸면 됨)
+     ***********************/
+    const PASSWORD = "1234"; // ← 비번 바꾸기
+
+    // 퀴즈(정답은 대소문자/공백 무시 비교)
+    const QUESTIONS = [
+      {
+        title: "미션 1",
+        text: "오빠 생일은 몇 월 몇 일이야? (예: 2월21일 / 2/21 / 0221 다 가능)",
+        answers: ["2/21","02/21","2월21일","2월 21일","0221","221","02-21","2-21"],
+        hint: "숫자 2랑 21 😉"
+      },
+      {
+        title: "미션 2",
+        text: "주인님이 오빠 부르는 호칭은? (힌트: 이름+호칭)",
+        answers: ["기홍오빠","기홍 오빠","기홍오빠♡","기홍오빠 ❤","기홍오빠❤️"],
+        hint: "‘기홍’ + ‘오빠’ 💛"
+      },
+      {
+        title: "미션 3",
+        text: "오늘 오빠 인생 키워드 한 단어! (페이지 안에 나오는 말)",
+        answers: ["대박","대박시즌","대박 시즌","대박시즌!","대박 시즌!"],
+        hint: "‘___ 시즌’ 가자아아 💥"
+      }
+    ];
+
+    /***********************
+     * 저장 키
+     ***********************/
+    const KEY_UNLOCKED = "gh_unlocked_v1";
+    const KEY_QINDEX   = "gh_qindex_v1";
+    const KEY_DONE     = "gh_done_v1";
+
+    /***********************
+     * DOM
+     ***********************/
+    const elLock    = document.getElementById("stage-lock");
+    const elQuiz    = document.getElementById("stage-quiz");
+    const elSuccess = document.getElementById("stage-success");
+
+    const pwInput = document.getElementById("pw");
+    const pwMsg   = document.getElementById("pw-msg");
+
+    const qTitle  = document.getElementById("qtitle");
+    const qText   = document.getElementById("qtext");
+    const ansInput= document.getElementById("answer");
+    const qMsg    = document.getElementById("q-msg");
+    const hintEl  = document.getElementById("hint");
+
+    const pipsEl  = document.getElementById("pips");
+
+    /***********************
+     * Helpers
+     ***********************/
+    const norm = (s) => (s ?? "").toString().trim().toLowerCase().replace(/\s+/g,"");
+    const setStage = (name) => {
+      elLock.classList.add("hidden");
+      elQuiz.classList.add("hidden");
+      elSuccess.classList.add("hidden");
+      if(name==="lock") elLock.classList.remove("hidden");
+      if(name==="quiz") elQuiz.classList.remove("hidden");
+      if(name==="success") elSuccess.classList.remove("hidden");
+    };
+
+    function buildPips(idx){
+      pipsEl.innerHTML = "";
+      for(let i=0;i<QUESTIONS.length;i++){
+        const d = document.createElement("div");
+        d.className = "pip" + (i<=idx ? " on" : "");
+        pipsEl.appendChild(d);
+      }
+    }
+
+    function currentIndex(){
+      const raw = localStorage.getItem(KEY_QINDEX);
+      const n = raw ? parseInt(raw,10) : 0;
+      return Number.isFinite(n) ? Math.max(0, Math.min(QUESTIONS.length-1, n)) : 0;
+    }
+
+    function showQuestion(){
+      const idx = currentIndex();
+      const q = QUESTIONS[idx];
+      qTitle.textContent = q.title + ` (${idx+1}/${QUESTIONS.length})`;
+      qText.textContent  = q.text;
+      qMsg.textContent = "";
+      qMsg.className = "msg";
+      hintEl.textContent = "";
+      ansInput.value = "";
+      buildPips(idx);
+      ansInput.focus({preventScroll:true});
+    }
+
+    function markDone(){
+      localStorage.setItem(KEY_DONE, "1");
+      setStage("success");
+      burstFireworks(5);
+    }
+
+    /***********************
+     * Lock logic
+     ***********************/
+    function unlock(){
+      const ok = norm(pwInput.value) === norm(PASSWORD);
+      if(ok){
+        localStorage.setItem(KEY_UNLOCKED, "1");
+        pwMsg.textContent = "오케이~ 입장 성공 😎 미션 시작!";
+        pwMsg.className = "msg good";
+        setTimeout(()=>{
+          setStage("quiz");
+          showQuestion();
+          tinySparkle();
+        }, 450);
+      }else{
+        pwMsg.textContent = "땡! 비번이 아닌데? 😝 (오빠가 아는 그거!)";
+        pwMsg.className = "msg bad";
+        wiggle(pwInput);
+      }
+    }
+
+    /***********************
+     * Quiz logic
+     ***********************/
+    function submitAnswer(){
+      const idx = currentIndex();
+      const q = QUESTIONS[idx];
+      const user = norm(ansInput.value);
+
+      const isCorrect = q.answers.some(a => norm(a) === user);
+
+      if(isCorrect){
+        qMsg.textContent = "정답! 오빠 좀 치는데? 😎✨";
+        qMsg.className = "msg good";
+        hintEl.textContent = "";
+        tinySparkle();
+
+        setTimeout(()=>{
+          if(idx >= QUESTIONS.length-1){
+            markDone();
+          }else{
+            localStorage.setItem(KEY_QINDEX, String(idx+1));
+            showQuestion();
+          }
+        }, 550);
+      }else{
+        qMsg.textContent = "아깝다 ㅠㅠ 다시! (힌트 볼래?)";
+        qMsg.className = "msg bad";
+        wiggle(ansInput);
+      }
+    }
+
+    function showHint(){
+      const idx = currentIndex();
+      const q = QUESTIONS[idx];
+      hintEl.innerHTML = `힌트: <b>${q.hint}</b>`;
+      tinySparkle();
+    }
+
+    /***********************
+     * Small UI effects
+     ***********************/
+    function wiggle(el){
+      el.animate([
+        {transform:"translateX(0)"},
+        {transform:"translateX(-8px)"},
+        {transform:"translateX(8px)"},
+        {transform:"translateX(-5px)"},
+        {transform:"translateX(5px)"},
+        {transform:"translateX(0)"},
+      ], {duration: 320, easing:"ease-out"});
+    }
+
+    /***********************
+     * Dots background
+     ***********************/
+    const dots = document.getElementById("dots");
+    (function spawnDots(){
+      const count = 26;
+      for(let i=0;i<count;i++){
+        const d = document.createElement("div");
+        d.className = "dot";
+        const left = Math.random()*100;
+        const delay = Math.random()*10;
+        const dur = 8 + Math.random()*8;
+        const size = 6 + Math.random()*8;
+        d.style.left = left + "vw";
+        d.style.bottom = (-10 - Math.random()*60) + "vh";
+        d.style.animationDelay = (-delay) + "s";
+        d.style.animationDuration = dur + "s";
+        d.style.width = d.style.height = size + "px";
+        d.style.opacity = (0.15 + Math.random()*0.6).toFixed(2);
+        dots.appendChild(d);
+      }
+    })();
+
+    /***********************
+     * Tap sparkle (simple particles)
+     ***********************/
+    document.addEventListener("pointerdown", (e)=>{
+      // only when quiz/success visible
+      if(elQuiz.classList.contains("hidden") && elSuccess.classList.contains("hidden")) return;
+      sparkleAt(e.clientX, e.clientY, 18);
+    });
+
+    function tinySparkle(){
+      sparkleAt(window.innerWidth/2, window.innerHeight*0.35, 22);
+    }
+
+    /***********************
+     * Fireworks canvas
+     ***********************/
+    const canvas = document.getElementById("fx");
+    const ctx = canvas.getContext("2d");
+    let W=0,H=0, dpr=1;
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      W = canvas.width = Math.floor(window.innerWidth * dpr);
+      H = canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const particles = [];
+    function sparkleAt(x,y,n=24){
+      for(let i=0;i<n;i++){
+        const a = Math.random()*Math.PI*2;
+        const s = 1.2 + Math.random()*3.2;
+        particles.push({
+          x, y,
+          vx: Math.cos(a)*s,
+          vy: Math.sin(a)*s,
+          life: 40 + Math.random()*18,
+          r: 1 + Math.random()*2.2,
+          // no fixed colors, but random bright-ish via hsl
+          h: Math.floor(Math.random()*360),
+        });
+      }
+    }
+
+    function fireworkBurst(x,y){
+      const n = 70 + Math.floor(Math.random()*50);
+      for(let i=0;i<n;i++){
+        const a = Math.random()*Math.PI*2;
+        const s = 2 + Math.random()*6;
+        particles.push({
+          x, y,
+          vx: Math.cos(a)*s,
+          vy: Math.sin(a)*s,
+          life: 70 + Math.random()*35,
+          r: 1.2 + Math.random()*2.8,
+          h: Math.floor(Math.random()*360),
+          g: 0.05 + Math.random()*0.06
+        });
+      }
+    }
+
+    function burstFireworks(times=3){
+      for(let i=0;i<times;i++){
+        setTimeout(()=>{
+          const x = 60 + Math.random()*(window.innerWidth-120);
+          const y = 120 + Math.random()*(window.innerHeight*0.45);
+          fireworkBurst(x,y);
+        }, i*320);
+      }
+    }
+
+    function tick(){
+      ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.life -= 1;
+        if(p.life<=0){ particles.splice(i,1); continue; }
+
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.g) p.vy += p.g;
+
+        const alpha = Math.max(0, Math.min(1, p.life/90));
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${p.h}, 90%, 70%, ${alpha})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    /***********************
+     * Buttons
+     ***********************/
+    document.getElementById("btn-unlock").addEventListener("click", unlock);
+    pwInput.addEventListener("keydown", (e)=>{ if(e.key==="Enter") unlock(); });
+
+    document.getElementById("btn-submit").addEventListener("click", submitAnswer);
+    ansInput.addEventListener("keydown", (e)=>{ if(e.key==="Enter") submitAnswer(); });
+
+    document.getElementById("btn-skip-hint").addEventListener("click", showHint);
+    document.getElementById("btn-back-lock").addEventListener("click", ()=> setStage("lock"));
+
+    document.getElementById("btn-fireworks").addEventListener("click", ()=> burstFireworks(6));
+
+    document.getElementById("btn-share").addEventListener("click", async ()=>{
+      const url = location.href;
+      const text = "기홍오빠 ♡ 미션 성공하면 폭죽 터져요 🎆";
+      try{
+        if(navigator.share){
+          await navigator.share({ title: document.title, text, url });
+        }else{
+          await navigator.clipboard.writeText(url);
+          document.getElementById("s-msg").textContent = "링크 복사 완료! 카톡에 붙여넣기 하면 돼요 📎";
+        }
+      }catch(e){
+        // fallback
+        try{
+          await navigator.clipboard.writeText(url);
+          document.getElementById("s-msg").textContent = "링크 복사 완료! 카톡에 붙여넣기 하면 돼요 📎";
+        }catch(_){
+          document.getElementById("s-msg").textContent = "공유가 막혔으면 주소창 링크를 길게 눌러 복사해서 보내줘요!";
+        }
+      }
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", ()=>{
+      localStorage.removeItem(KEY_UNLOCKED);
+      localStorage.removeItem(KEY_QINDEX);
+      localStorage.removeItem(KEY_DONE);
+      pwMsg.textContent = "초기화 완료! 다시 테스트 가능 🙂";
+      pwMsg.className = "msg good";
+    });
+
+    /***********************
+     * Boot: restore state
+     ***********************/
+    (function boot(){
+      const done = localStorage.getItem(KEY_DONE)==="1";
+      const unlocked = localStorage.getItem(KEY_UNLOCKED)==="1";
+
+      if(done){
+        setStage("success");
+        setTimeout(()=>burstFireworks(4), 200);
+        return;
+      }
+      if(unlocked){
+        setStage("quiz");
+        showQuestion();
+        return;
+      }
+      setStage("lock");
+    })();
+  </script>
+</body>
+</html>
